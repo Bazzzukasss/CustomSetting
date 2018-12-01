@@ -6,19 +6,61 @@
 class ICustomSettingXML
 {
 public:
-    virtual QXmlStreamAttributes getXMLAttributes() const = 0;
-    virtual void setXMLAttributes(const QXmlStreamAttributes& aAttributes) = 0;
-    virtual QString getValueAsString() const = 0;
+    virtual QXmlStreamAttributes toXMLAttributes() const = 0;
+    virtual void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) = 0;
 
 protected:
     void fromString(const QStringRef& aStringValue, int& value){ value = aStringValue.toInt(); }
     void fromString(const QStringRef& aStringValue, double& value){ value = aStringValue.toDouble(); }
     void fromString(const QStringRef& aStringValue, bool& value){ value = aStringValue.toInt(); }
+    void fromString(const QStringRef& aStringValue, QString& value){ value = aStringValue.toString(); }
 
     QString toString(int aValue) const { return QString::number(aValue); }
     QString toString(double aValue) const { return QString::number(aValue); }
     QString toString(bool aValue) const { return QString::number(aValue); }
 };
+
+
+class CustomSetingHeader : public ICustomSettingXML
+{
+public:
+    CustomSetingHeader(const QString& aId, const QString& aCaption, const QString& aDescription)
+        :mId(aId),mCaption(aCaption),mDescription(aDescription)
+    {}
+
+    CustomSetingHeader(const QXmlStreamAttributes& aAttributes){
+        fromXMLAttributes(aAttributes);
+    }
+
+    void setCaption(const QString& aCaption)            { mCaption = aCaption; }
+    void setDescription(const QString& aDescription)    { mDescription = aDescription; }
+    void setId(const QString& aId)                      { mId = aId; }
+
+    QString getCaption() const                          { return mCaption; }
+    QString getDescription() const                      { return mDescription; }
+    QString getId() const                               { return mId; }
+
+    QXmlStreamAttributes toXMLAttributes() const override{
+        QXmlStreamAttributes attributes;
+        attributes.append( {"id",           mId});
+        attributes.append( {"caption",      mCaption});
+        attributes.append( {"descriptiont", mDescription});
+
+        return attributes;
+    }
+
+    void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) override{
+        if(aAttributes.hasAttribute("id"))          fromString(aAttributes.value("id"),mId);
+        if(aAttributes.hasAttribute("caption"))     fromString(aAttributes.value("caption"),mCaption);
+        if(aAttributes.hasAttribute("description")) fromString(aAttributes.value("description"),mDescription);
+    }
+
+private:
+    QString mId;
+    QString mCaption;
+    QString mDescription;
+};
+
 
 template<typename T>
 class CustomSettingData : public ICustomSettingXML
@@ -34,7 +76,7 @@ public:
         :mValue(aValue),mDefaultValue(aValue),mResetValue(aValue)
     {}
     CustomSettingData(const QXmlStreamAttributes& aAttributes){
-        setXMLAttributes(aAttributes);
+        fromXMLAttributes(aAttributes);
     }
 
     void setValue(const T& value)       { mValue = value; }
@@ -48,7 +90,7 @@ public:
     void setToDefault()                 { mValue = mDefaultValue; }
     void resetValue()                   { mValue = mResetValue; }
 
-    QXmlStreamAttributes getXMLAttributes() const override{
+    QXmlStreamAttributes toXMLAttributes() const override{
         QXmlStreamAttributes attributes;
         attributes.append( {"value",   toString(mValue)});
         attributes.append( {"default", toString(mDefaultValue)});
@@ -56,14 +98,10 @@ public:
         return attributes;
     }
 
-    void setXMLAttributes(const QXmlStreamAttributes& aAttributes) override{
+    void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) override{
         if(aAttributes.hasAttribute("value"))   fromString( aAttributes.value("value"), mValue);
         if(aAttributes.hasAttribute("default")) fromString( aAttributes.value("default"), mDefaultValue);
         if(aAttributes.hasAttribute("reset"))   fromString( aAttributes.value("reset"), mResetValue );
-    }
-
-    QString getValueAsString() const override{
-        return toString(mValue);
     }
 
 protected:
@@ -71,20 +109,9 @@ protected:
     T mDefaultValue;
     T mResetValue;
 };
-/*
-template<typename T>
-class CustomSettingData : public CustomSettingData<T>{
-public:
-    SIDigits(const T& value = 0,const T& min= std::numeric_limits<T>::min(),const T& max = std::numeric_limits<T>::max(),const T& defaultValue = 0,const T& resetValue = 0)
-        :CustomItemType<T>(value,defaultValue,resetValue),mMin(min),mMax(max)
-    {}
-    T getMaximum(){return mMax;}
-    T getMinimum(){return mMin;}
-protected:
-    T mMin;
-    T mMax;
-};
-*/
+
+
+
 /*
 #include <limits>
 #include <QStringList>
