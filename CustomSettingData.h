@@ -3,11 +3,12 @@
 
 #include <QXmlStreamAttributes>
 
-class ICustomSettingXML
+class ICustomSettingData
 {
 public:
     virtual QXmlStreamAttributes toXMLAttributes() const = 0;
     virtual void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) = 0;
+    virtual QString getStringValue() const {return "";}
 
 protected:
     void fromString(const QStringRef& aStringValue, int& value){ value = aStringValue.toInt(); }
@@ -21,7 +22,7 @@ protected:
 };
 
 
-class CustomSetingHeader : public ICustomSettingXML
+class CustomSetingHeader : public ICustomSettingData
 {
 public:
     CustomSetingHeader(const QString& aId, const QString& aCaption, const QString& aDescription)
@@ -63,7 +64,7 @@ private:
 
 
 template<typename T>
-class CustomSettingData : public ICustomSettingXML
+class CustomSettingData : public ICustomSettingData
 {
 public:
     CustomSettingData(const T& aValue,const T& aDefaultValue,const T& aResetValue)
@@ -89,6 +90,8 @@ public:
 
     void setToDefault()                 { mValue = mDefaultValue; }
     void resetValue()                   { mValue = mResetValue; }
+
+    QString getStringValue() const override { return toString(mValue); }
 
     QXmlStreamAttributes toXMLAttributes() const override{
         QXmlStreamAttributes attributes;
