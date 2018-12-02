@@ -4,16 +4,16 @@
 #include <QXmlStreamAttributes>
 #include "CustomSettingCommon.h"
 
-class ICustomSettingData
+class CustomSettingData
 {
 public:
-    virtual QXmlStreamAttributes toXMLAttributes() const = 0;
-    virtual void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) = 0;
-    virtual QString getStringValue() const {return "";}
+    virtual QXmlStreamAttributes toXMLAttributes() const                    { return QXmlStreamAttributes(); }
+    virtual void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) { Q_UNUSED(aAttributes); }
+    virtual QString getStringValue() const                                  {return "";}
 };
 
 
-class CustomSetingHeader : public ICustomSettingData
+class CustomSetingHeader : public CustomSettingData
 {
 public:
     CustomSetingHeader(const QString& aId, const QString& aCaption, const QString& aDescription)
@@ -55,19 +55,19 @@ private:
 
 
 template<typename T>
-class CustomSettingData : public ICustomSettingData
+class CustomSettingDataExt : public CustomSettingData
 {
 public:
-    CustomSettingData(const T& aValue,const T& aDefaultValue,const T& aResetValue)
+    CustomSettingDataExt(const T& aValue,const T& aDefaultValue,const T& aResetValue)
         :mValue(aValue),mDefaultValue(aDefaultValue),mResetValue(aResetValue)
     {}
-    CustomSettingData(const T& aValue,const T& aDefaultValue)
+    CustomSettingDataExt(const T& aValue,const T& aDefaultValue)
         :mValue(aValue),mDefaultValue(aDefaultValue),mResetValue(aValue)
     {}
-    CustomSettingData(const T& aValue)
+    CustomSettingDataExt(const T& aValue)
         :mValue(aValue),mDefaultValue(aValue),mResetValue(aValue)
     {}
-    CustomSettingData(const T& aValue, const QXmlStreamAttributes& aAttributes)
+    CustomSettingDataExt(const T& aValue, const QXmlStreamAttributes& aAttributes)
         :mValue(aValue)
     {
         fromXMLAttributes(aAttributes);

@@ -45,14 +45,14 @@ template <typename T>
 class CustomSettingExt : public CustomSettingSimple
 {
 public:
-    CustomSettingExt(const QString& aTag, const CustomSetingHeader& aHeader, const CustomSettingData<T>& aData)
+    CustomSettingExt(const QString& aTag, const CustomSetingHeader& aHeader, const CustomSettingDataExt<T>& aData)
         :CustomSettingSimple(aTag,aHeader),mData(aData)
     {}
 
-    void setData(const CustomSettingData<T>& aData) { mData = aData; }
-    CustomSettingData<T>& getData()                 { return mData; }
+    void setData(const CustomSettingDataExt<T>& aData)  { mData = aData; }
+    CustomSettingDataExt<T>& getData()                  { return mData; }
 
-    QString getValue() const override               { return mData.getStringValue(); }
+    QString getValue() const override                   { return mData.getStringValue(); }
 
     QXmlStreamAttributes getXMLAttributes() const override{
         auto attributes = mHeader.toXMLAttributes();
@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    CustomSettingData<T> mData;
+    CustomSettingDataExt<T> mData;
 };
 
 #endif // CUSTOMSETTING_H
