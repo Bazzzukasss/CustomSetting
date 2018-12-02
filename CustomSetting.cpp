@@ -1,5 +1,5 @@
 #include "CustomSetting.h"
-std::ostream& operator<<(std::ostream& s, const ICustomSetting& aSetting)
+std::ostream& operator<<(std::ostream& s, const CustomSetting& aSetting)
 {
     static QString space("");
     s << space.toStdString() << "<" << aSetting.getTag().toStdString() << toString(aSetting.getXMLAttributes()).toStdString() << ">" << aSetting.getValue().toStdString() << std::endl;

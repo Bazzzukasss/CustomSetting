@@ -4,33 +4,33 @@
 #include "CustomSettingData.h"
 #include <iostream>
 
-class ICustomSetting{
+class CustomSetting{
 public:
-    ICustomSetting(){}
+    CustomSetting(){}
     //int getType() or dynamic_cast to CustomSettingExt<T>
     //auto data = CustomSettingExt<T>.getData()
     //data.getValue(T val); or data.setValue(T val);
 
-    virtual const QString& getTag() const = 0;
-    virtual QXmlStreamAttributes getXMLAttributes() const = 0;
-    virtual const QString getValue() const { return ""; }
+    virtual QString getTag() const                          { return ""; }
+    virtual QXmlStreamAttributes getXMLAttributes() const   { return QXmlStreamAttributes(); }
+    virtual QString getValue() const                        { return ""; }
 
-    friend std::ostream& operator<<(std::ostream& s, const ICustomSetting& aSetting);
+    friend std::ostream& operator<<(std::ostream& s, const CustomSetting& aSetting);
 
-    void addSetting(ICustomSetting* aSetting) { mSettings.append(aSetting); }
+    void addSetting(CustomSetting* aSetting) { mSettings.append(aSetting); }
 protected:
 
-    QVector<ICustomSetting*> mSettings;
+    QVector<CustomSetting*> mSettings;
 };
 
-class CustomSetting : public ICustomSetting
+class CustomSettingSimple : public CustomSetting
 {
 public:
-    CustomSetting(const QString& aTag, const CustomSetingHeader& aHeader)
+    CustomSettingSimple(const QString& aTag, const CustomSetingHeader& aHeader)
         :mTag(aTag),mHeader(aHeader)
     {}
 
-    const QString& getTag() const override                  { return mTag; }
+    QString getTag() const override                  { return mTag; }
     QXmlStreamAttributes getXMLAttributes() const override  { return mHeader.toXMLAttributes(); }
 
 protected:
@@ -42,17 +42,17 @@ private:
 
 
 template <typename T>
-class CustomSettingExt : public CustomSetting
+class CustomSettingExt : public CustomSettingSimple
 {
 public:
     CustomSettingExt(const QString& aTag, const CustomSetingHeader& aHeader, const CustomSettingData<T>& aData)
-        :CustomSetting(aTag,aHeader),mData(aData)
+        :CustomSettingSimple(aTag,aHeader),mData(aData)
     {}
 
     void setData(const CustomSettingData<T>& aData) { mData = aData; }
     CustomSettingData<T>& getData()                 { return mData; }
 
-    const QString getValue() const override         { return mData.getStringValue(); }
+    QString getValue() const override               { return mData.getStringValue(); }
 
     QXmlStreamAttributes getXMLAttributes() const override{
         auto attributes = mHeader.toXMLAttributes();
