@@ -2,20 +2,26 @@
 #define CUSTOMSETTINGSCONFIGURATOR_H
 
 #include "CustomSettingClasses.h"
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 #include <QString>
 
 class ICustomSettingsConfigurator
 {
 public:
-    virtual bool load(CustomSetting* apSetting, const QString& filename) = 0;
-    virtual bool save(CustomSetting* apSetting, const QString& filename) = 0;
+    virtual bool load(const QString& filename, CustomSetting* apSetting) = 0;
+    virtual bool save(const QString& filename, CustomSetting* apSetting) = 0;
 };
 
-class CustomSettingsConfiguratorXML
+class CustomSettingsConfiguratorXML : public ICustomSettingsConfigurator
 {
 public:
-    bool load(CustomSetting* apSetting, const QString& filename);
-    bool save(CustomSetting* apSetting, const QString& filename);
+    bool load(const QString& filename, CustomSetting* apSetting) override;
+    bool save(const QString& filename, CustomSetting* apSetting) override;
+
+private:
+    bool load(QXmlStreamReader& reader, CustomSetting* apSetting);
+    bool save(QXmlStreamWriter& writer, CustomSetting *apSetting);
 };
 
 #endif // CUSTOMSETTINGSCONFIGURATOR_H

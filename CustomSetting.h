@@ -15,11 +15,11 @@ public:
     virtual QXmlStreamAttributes getXMLAttributes() const   { return QXmlStreamAttributes(); }
     virtual QString getValue() const                        { return ""; }
 
+    void addSetting(CustomSetting* aSetting)                { mSettings.append(aSetting); }
+    QVector<CustomSetting*>& getSettings()                  {return mSettings; }
+
     friend std::ostream& operator<<(std::ostream& s, const CustomSetting& aSetting);
-
-    void addSetting(CustomSetting* aSetting) { mSettings.append(aSetting); }
 protected:
-
     QVector<CustomSetting*> mSettings;
 };
 
