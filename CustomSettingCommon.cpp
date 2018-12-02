@@ -13,6 +13,6 @@ QString toString(const QXmlStreamAttributes &aAttributes)
 {
     QString str;
     for(auto& attr : aAttributes)
-        str = QString("%1 %2=%3").arg(str).arg(attr.name()).arg(attr.value());
+        str = QString("%1 %2=\"%3\"").arg(str).arg(attr.name()).arg(attr.value());
     return str;
 }

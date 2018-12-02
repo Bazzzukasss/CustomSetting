@@ -2,6 +2,7 @@
 #define CUSTOMSETTING_H
 
 #include "CustomSettingData.h"
+#include <iostream>
 
 class ICustomSetting{
 public:
@@ -13,6 +14,13 @@ public:
     virtual const QString& getTag() const = 0;
     virtual QXmlStreamAttributes getXMLAttributes() const = 0;
     virtual const QString getValue() const { return ""; }
+
+    friend std::ostream& operator<<(std::ostream& s, const ICustomSetting& aSetting);
+
+    void addSetting(ICustomSetting* aSetting) { mSettings.append(aSetting); }
+protected:
+
+    QVector<ICustomSetting*> mSettings;
 };
 
 class CustomSetting : public ICustomSetting
@@ -23,15 +31,13 @@ public:
     {}
 
     const QString& getTag() const override                  { return mTag; }
-    QXmlStreamAttributes getXMLAttributes() const override  { mHeader.toXMLAttributes(); }
+    QXmlStreamAttributes getXMLAttributes() const override  { return mHeader.toXMLAttributes(); }
 
 protected:
-    void addSetting(CustomSetting* aSetting)                { mSettings.append(aSetting); }
+    CustomSetingHeader mHeader;
 
 private:
     QString mTag;
-    CustomSetingHeader mHeader;
-    QVector<ICustomSetting*> mSettings;
 };
 
 
@@ -46,12 +52,12 @@ public:
     void setData(const CustomSettingData<T>& aData) { mData = aData; }
     CustomSettingData<T>& getData()                 { return mData; }
 
-    const QString getValue() const override         { mData.getStringValue(); }
+    const QString getValue() const override         { return mData.getStringValue(); }
 
     QXmlStreamAttributes getXMLAttributes() const override{
         auto attributes = mHeader.toXMLAttributes();
         for(auto& attr : mData.toXMLAttributes())
-            attributes.append( attr.name(), attr.value() );
+            attributes.append( attr );
 
         return attributes;
     }

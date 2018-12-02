@@ -15,4 +15,5 @@ extern QString toString(bool aValue);
 extern QString toString(const QXmlStreamAttributes& aAttributes);
 
 
+
 #endif // CUSTOMSETTINGCOMMON_H
