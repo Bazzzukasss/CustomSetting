@@ -17,8 +17,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
     CustomSetting.cpp \
-    CustomSettingData.cpp
+    CustomSettingData.cpp \
+    CustomSettingCommon.cpp
 
 HEADERS += \
     CustomSetting.h \
-    CustomSettingData.h
+    CustomSettingData.h \
+    CustomSettingCommon.h

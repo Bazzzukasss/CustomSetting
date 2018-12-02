@@ -2,6 +2,7 @@
 #define CUSTOMSETTINGDATA_H
 
 #include <QXmlStreamAttributes>
+#include "CustomSettingCommon.h"
 
 class ICustomSettingData
 {
@@ -9,16 +10,6 @@ public:
     virtual QXmlStreamAttributes toXMLAttributes() const = 0;
     virtual void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) = 0;
     virtual QString getStringValue() const {return "";}
-
-protected:
-    void fromString(const QStringRef& aStringValue, int& value){ value = aStringValue.toInt(); }
-    void fromString(const QStringRef& aStringValue, double& value){ value = aStringValue.toDouble(); }
-    void fromString(const QStringRef& aStringValue, bool& value){ value = aStringValue.toInt(); }
-    void fromString(const QStringRef& aStringValue, QString& value){ value = aStringValue.toString(); }
-
-    QString toString(int aValue) const { return QString::number(aValue); }
-    QString toString(double aValue) const { return QString::number(aValue); }
-    QString toString(bool aValue) const { return QString::number(aValue); }
 };
 
 
@@ -51,9 +42,9 @@ public:
     }
 
     void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) override{
-        if(aAttributes.hasAttribute("id"))          fromString(aAttributes.value("id"),mId);
-        if(aAttributes.hasAttribute("caption"))     fromString(aAttributes.value("caption"),mCaption);
-        if(aAttributes.hasAttribute("description")) fromString(aAttributes.value("description"),mDescription);
+        if(aAttributes.hasAttribute("id"))          fromString(aAttributes.value("id").toString(),mId);
+        if(aAttributes.hasAttribute("caption"))     fromString(aAttributes.value("caption").toString(),mCaption);
+        if(aAttributes.hasAttribute("description")) fromString(aAttributes.value("description").toString(),mDescription);
     }
 
 private:
@@ -76,7 +67,9 @@ public:
     CustomSettingData(const T& aValue)
         :mValue(aValue),mDefaultValue(aValue),mResetValue(aValue)
     {}
-    CustomSettingData(const QXmlStreamAttributes& aAttributes){
+    CustomSettingData(const T& aValue, const QXmlStreamAttributes& aAttributes)
+        :mValue(aValue)
+    {
         fromXMLAttributes(aAttributes);
     }
 
@@ -95,16 +88,14 @@ public:
 
     QXmlStreamAttributes toXMLAttributes() const override{
         QXmlStreamAttributes attributes;
-        attributes.append( {"value",   toString(mValue)});
         attributes.append( {"default", toString(mDefaultValue)});
         attributes.append( {"reset",   toString(mResetValue)});
         return attributes;
     }
 
     void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) override{
-        if(aAttributes.hasAttribute("value"))   fromString( aAttributes.value("value"), mValue);
-        if(aAttributes.hasAttribute("default")) fromString( aAttributes.value("default"), mDefaultValue);
-        if(aAttributes.hasAttribute("reset"))   fromString( aAttributes.value("reset"), mResetValue );
+        if(aAttributes.hasAttribute("default")) fromString( aAttributes.value("default").toString(), mDefaultValue);
+        if(aAttributes.hasAttribute("reset"))   fromString( aAttributes.value("reset").toString(), mResetValue );
     }
 
 protected:

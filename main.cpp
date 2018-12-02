@@ -9,17 +9,16 @@ int main(int argc, char *argv[])
 
     CustomSettingData<int> dataInt(1,2,3);
     QXmlStreamAttributes attributes;
-    attributes.append( {"value",   QString::number(10.1)});
     attributes.append( {"default", QString::number(20.2)});
     attributes.append( {"reset",   QString::number(30.3)});
 
     dataInt.fromXMLAttributes(attributes);
 
 
-    CustomSettingData<double> dataDouble(attributes);
+    CustomSettingData<double> dataDouble(10.1,attributes);
     CustomSetingHeader header("idValue","captionValue","descriptionValue");
 
-    qDebug()<< dataDouble.getStringValue();
+    qDebug()<< toString(dataDouble.toXMLAttributes()) << dataDouble.getStringValue();
 
     return a.exec();
 }
