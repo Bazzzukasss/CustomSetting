@@ -18,9 +18,12 @@ SOURCES += \
         main.cpp \
     CustomSetting.cpp \
     CustomSettingData.cpp \
-    CustomSettingCommon.cpp
+    CustomSettingCommon.cpp \
+    CustomSettingConfigurator.cpp
 
 HEADERS += \
     CustomSetting.h \
     CustomSettingData.h \
-    CustomSettingCommon.h
+    CustomSettingCommon.h \
+    CustomSettingClasses.h \
+    CustomSettingConfigurator.h

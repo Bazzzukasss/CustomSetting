@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
         CustomSettingExt<bool>      ParamBool("paramBool",      {"idVal","capVal","desVal"}, {true,false,true});
 
     root.addSetting(&ParamInt);
-    ParamInt.addSetting(&ParamDouble);
+    root.addSetting(&ParamDouble);
     root.addSetting(&ParamBool);
 
     std::cout << root;
