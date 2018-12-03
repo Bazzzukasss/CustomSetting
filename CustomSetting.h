@@ -27,7 +27,7 @@ class CustomSettingSimple : public CustomSetting
 {
 public:
     CustomSettingSimple(const QString& aTag, const CustomSetingHeader& aHeader)
-        :mTag(aTag),mHeader(aHeader)
+        :mHeader(aHeader),mTag(aTag)
     {}
 
     QString getTag() const override                  { return mTag; }
