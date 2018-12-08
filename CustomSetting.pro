@@ -19,11 +19,13 @@ SOURCES += \
     CustomSetting.cpp \
     CustomSettingCommon.cpp \
     CustomSettingConfigurator.cpp \
-    CustomData.cpp
+    CustomData.cpp \
+    UserSettings.cpp
 
 HEADERS += \
     CustomSetting.h \
     CustomSettingCommon.h \
     CustomSettingClasses.h \
     CustomSettingConfigurator.h \
-    CustomData.h
+    CustomData.h \
+    UserSettings.h

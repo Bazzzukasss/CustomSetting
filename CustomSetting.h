@@ -16,6 +16,7 @@ public:
     virtual QString getValue() const                        { return ""; }
 
     void addSetting(CustomSetting* aSetting)                { mSettings.append(aSetting); }
+    void addSettings(QVector<CustomSetting*> aSettings)     { mSettings.append(aSettings); }
     QVector<CustomSetting*>& getSettings()                  {return mSettings; }
 
     friend std::ostream& operator<<(std::ostream& s, const CustomSetting& aSetting);
