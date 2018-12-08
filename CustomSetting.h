@@ -1,7 +1,7 @@
 #ifndef CUSTOMSETTING_H
 #define CUSTOMSETTING_H
 
-#include "CustomSettingData.h"
+#include "CustomData.h"
 #include <iostream>
 
 class CustomSetting{
@@ -26,15 +26,15 @@ protected:
 class CustomSettingSimple : public CustomSetting
 {
 public:
-    CustomSettingSimple(const QString& aTag, const CustomSetingHeader& aHeader)
+    CustomSettingSimple(const QString& aTag, const CustomHeader& aHeader)
         :mHeader(aHeader),mTag(aTag)
     {}
 
-    QString getTag() const override                  { return mTag; }
+    QString getTag() const override                         { return mTag; }
     QXmlStreamAttributes getXMLAttributes() const override  { return mHeader.toXMLAttributes(); }
 
 protected:
-    CustomSetingHeader mHeader;
+    CustomHeader mHeader;
 
 private:
     QString mTag;
@@ -45,12 +45,12 @@ template <typename T>
 class CustomSettingExt : public CustomSettingSimple
 {
 public:
-    CustomSettingExt(const QString& aTag, const CustomSetingHeader& aHeader, const CustomSettingDataExt<T>& aData)
+    CustomSettingExt(const QString& aTag, const CustomHeader& aHeader, const CustomDataExt<T>& aData)
         :CustomSettingSimple(aTag,aHeader),mData(aData)
     {}
 
-    void setData(const CustomSettingDataExt<T>& aData)  { mData = aData; }
-    CustomSettingDataExt<T>& getData()                  { return mData; }
+    void setData(const CustomDataExt<T>& aData)         { mData = aData; }
+    CustomDataExt<T>& getData()                         { return mData; }
 
     QString getValue() const override                   { return mData.getStringValue(); }
 
@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    CustomSettingDataExt<T> mData;
+    CustomDataExt<T> mData;
 };
 
 #endif // CUSTOMSETTING_H

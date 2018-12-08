@@ -1,28 +1,89 @@
-#ifndef CUSTOMITEMTYPES_H
-#define CUSTOMITEMTYPES_H
-
-#pragma push_macro("min")
-#pragma push_macro("max")
-#undef min
-#undef max
+#ifndef CUSTOMDATA_H
+#define CUSTOMDATA_H
 
 #include <limits>
 #include <QStringList>
 #include <QVector>
 #include <QMetaType>
 
-template<typename T>
-class CustomItemType{
+
+#include <QXmlStreamAttributes>
+#include "CustomSettingCommon.h"
+
+static const char* attrDefault = "default";
+static const char* attrReset = "reset";
+static const char* attrCaption = "caption";
+static const char* attrDescription = "description";
+static const char* attrId = "id";
+
+class CustomData
+{
 public:
-    CustomItemType(const T& value,const T& defaultValue,const T& resetValue)
-        :mValue(value),mDefaultValue(defaultValue),mResetValue(resetValue)
+    virtual QXmlStreamAttributes toXMLAttributes() const                    { return QXmlStreamAttributes(); }
+    virtual void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) { Q_UNUSED(aAttributes); }
+    virtual QString getStringValue() const                                  {return "";}
+};
+
+
+class CustomHeader : public CustomData
+{
+public:
+    CustomHeader(const QString& aId, const QString& aCaption, const QString& aDescription)
+        :mId(aId),mCaption(aCaption),mDescription(aDescription)
     {}
-    CustomItemType(const T& value,const T& defaultValue)
-        :mValue(value),mDefaultValue(defaultValue),mResetValue(value)
+
+    CustomHeader(const QXmlStreamAttributes& aAttributes){
+        fromXMLAttributes(aAttributes);
+    }
+
+    void setCaption(const QString& aCaption)            { mCaption = aCaption; }
+    void setDescription(const QString& aDescription)    { mDescription = aDescription; }
+    void setId(const QString& aId)                      { mId = aId; }
+
+    QString getCaption() const                          { return mCaption; }
+    QString getDescription() const                      { return mDescription; }
+    QString getId() const                               { return mId; }
+
+    QXmlStreamAttributes toXMLAttributes() const override{
+        QXmlStreamAttributes attributes;
+        attributes.append( {"id",           mId});
+        attributes.append( {"caption",      mCaption});
+        attributes.append( {"descriptiont", mDescription});
+
+        return attributes;
+    }
+
+    void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) override{
+        if(aAttributes.hasAttribute("id"))          fromString(aAttributes.value("id").toString(),mId);
+        if(aAttributes.hasAttribute("caption"))     fromString(aAttributes.value("caption").toString(),mCaption);
+        if(aAttributes.hasAttribute("description")) fromString(aAttributes.value("description").toString(),mDescription);
+    }
+
+private:
+    QString mId;
+    QString mCaption;
+    QString mDescription;
+};
+
+
+template<typename T>
+class CustomDataExt : public CustomData
+{
+public:
+    CustomDataExt(const T& aValue,const T& aDefaultValue,const T& aResetValue)
+        :mValue(aValue),mDefaultValue(aDefaultValue),mResetValue(aResetValue)
     {}
-    CustomItemType(const T& value)
-        :mValue(value),mDefaultValue(value),mResetValue(value)
+    CustomDataExt(const T& aValue,const T& aDefaultValue)
+        :mValue(aValue),mDefaultValue(aDefaultValue),mResetValue(aValue)
     {}
+    CustomDataExt(const T& aValue)
+        :mValue(aValue),mDefaultValue(aValue),mResetValue(aValue)
+    {}
+    CustomDataExt(const T& aValue, const QXmlStreamAttributes& aAttributes)
+        :mValue(aValue)
+    {
+        fromXMLAttributes(aAttributes);
+    }
 
     void setValue(const T& value)       { mValue = value; }
     void setDefaultValue(const T& value){ mDefaultValue = value; }
@@ -35,6 +96,20 @@ public:
     void setToDefault()                 { mValue = mDefaultValue; }
     void resetValue()                   { mValue = mResetValue; }
 
+    QString getStringValue() const override { return toString(mValue); }
+
+    QXmlStreamAttributes toXMLAttributes() const override{
+        QXmlStreamAttributes attributes;
+        attributes.append( {"default", toString(mDefaultValue)});
+        attributes.append( {"reset",   toString(mResetValue)});
+        return attributes;
+    }
+
+    void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) override{
+        if(aAttributes.hasAttribute("default")) fromString( aAttributes.value("default").toString(), mDefaultValue);
+        if(aAttributes.hasAttribute("reset"))   fromString( aAttributes.value("reset").toString(), mResetValue );
+    }
+
 protected:
     T mValue;
     T mDefaultValue;
@@ -42,10 +117,10 @@ protected:
 };
 
 template<typename T>
-class SIDigits     : public CustomItemType<T>{
+class SIDigits     : public CustomDataExt<T>{
 public:
     SIDigits(const T& value = 0,const T& min= std::numeric_limits<T>::min(),const T& max = std::numeric_limits<T>::max(),const T& defaultValue = 0,const T& resetValue = 0)
-        :CustomItemType<T>(value,defaultValue,resetValue),mMin(min),mMax(max)
+        :CustomDataExt<T>(value,defaultValue,resetValue),mMin(min),mMax(max)
     {}
     T getMaximum(){return mMax;}
     T getMinimum(){return mMin;}
@@ -115,39 +190,39 @@ private:
 	QString mFormat;
 };
 
-class SILcd         : public CustomItemType<double>{
+class SILcd         : public CustomDataExt<double>{
 public:
     enum mode{HEX,DEC,OCT,BIN};
     SILcd(double value = 0,int mode = DEC)
-        :CustomItemType<double>(value),mDisplayMode(mode)
+        :CustomDataExt<double>(value),mDisplayMode(mode)
     {}
     int getDisplayMode(){return mDisplayMode;}
 private:
     int mDisplayMode;
 };
 
-class SIImage       : public CustomItemType<QString>{
+class SIImage       : public CustomDataExt<QString>{
 public:
-    SIImage(const QString& value = ""):CustomItemType<QString>(value){}
+    SIImage(const QString& value = ""):CustomDataExt<QString>(value){}
 };
 
-class SIString      : public CustomItemType<QString>{
+class SIString      : public CustomDataExt<QString>{
 public:
     SIString(const QString& value = "",const QString& defaultValue = "",const QString& resetValue = "")
-        :CustomItemType<QString>(value,defaultValue,resetValue)
+        :CustomDataExt<QString>(value,defaultValue,resetValue)
     {}
 };
 
-class SIText      : public CustomItemType<QString>{
+class SIText      : public CustomDataExt<QString>{
 public:
     SIText(const QString& value = "",const QString& defaultValue = "",const QString& resetValue = "")
-        :CustomItemType<QString>(value,defaultValue,resetValue)
+        :CustomDataExt<QString>(value,defaultValue,resetValue)
     {}
 };
 
-class SIPlot        : public CustomItemType<QVector<double>>{
+class SIPlot        : public CustomDataExt<QVector<double>>{
 public:
-    SIPlot(const QVector<double>& value = QVector<double>()):CustomItemType<QVector<double>>(value){}
+    SIPlot(const QVector<double>& value = QVector<double>()):CustomDataExt<QVector<double>>(value){}
 };
 
 class SIBars        : public SIPlot{
@@ -160,10 +235,10 @@ public:
     SIGraph(const QVector<double>& value = QVector<double>()):SIPlot(value){}
 };
 
-class SIBoolean      : public CustomItemType<bool>{
+class SIBoolean      : public CustomDataExt<bool>{
 public:
     SIBoolean(bool value = false, bool defaultValue = false, bool resetValue = false)
-        :CustomItemType<bool>(value,defaultValue,resetValue)
+        :CustomDataExt<bool>(value,defaultValue,resetValue)
     {}
 };
 
@@ -180,8 +255,4 @@ Q_DECLARE_METATYPE(SIImage);
 Q_DECLARE_METATYPE(SIStringList);
 Q_DECLARE_METATYPE(SIBooleanList);
 
-
-#pragma pop_macro("min")
-#pragma pop_macro("max")
-
-#endif //CUSTOMITEMTYPES_H
+#endif //CUSTOMDATA_H
