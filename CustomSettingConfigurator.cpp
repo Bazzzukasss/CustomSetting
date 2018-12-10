@@ -1,25 +1,20 @@
 #include "CustomSettingConfigurator.h"
 #include <QFile>
 #include "CustomSetting.h"
+#include <QDebug>
 
 bool CustomSettingsConfiguratorXML::load(const QString &filename, CustomSetting *apSetting)
 {
     if(!apSetting)
         return false;
 
+    QDomDocument doc;
     QFile file(filename);
-    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QXmlStreamReader reader(&file);
-        reader.isStartDocument();
-        load(reader,apSetting);
+    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file))
+       return false;
 
-        if (reader.hasError())
-            return false;
-
-        return true;
-    }
-    return false;
+    load(doc.documentElement(),apSetting);
+    return true;
 }
 
 bool CustomSettingsConfiguratorXML::save(const QString &filename, CustomSetting *apSetting)
@@ -45,96 +40,60 @@ bool CustomSettingsConfiguratorXML::save(const QString &filename, CustomSetting 
     return false;
 }
 
-bool CustomSettingsConfiguratorXML::load(QXmlStreamReader &reader, CustomSetting *apSetting)
+bool CustomSettingsConfiguratorXML::load(const QDomNode& aNode, CustomSetting *apSetting)
 {
-    if(!apSetting)
+    if(aNode.isNull())
         return false;
 
-    return true;
+    QDomElement element = aNode.toElement();
+    if(element.isNull())
+        return false;
+
+    //std::cout << apSetting->getTag().toStdString() << std::endl;
+    if(apSetting->getTag() == element.tagName())
+    {
+        QXmlStreamAttributes attributes = toXMLAttributes(aNode.attributes());
+        QString value = aNode.toElement().text();
+        //std::cout << toString( attributes ).toStdString() << value.toStdString() << std::endl;
+
+        apSetting->setXMLAttributes(attributes);
+        apSetting->setStringValue(value);
+
+        QDomNode node = element.firstChild();
+        for(auto& pSetting : apSetting->getSettings())
+        {
+            if(load(node,pSetting))
+                node = node.nextSibling();
+        }
+        return true;
+    }
+
+    return false;
 }
 
 bool CustomSettingsConfiguratorXML::save(QXmlStreamWriter &writer, CustomSetting *apSetting)
 {
-    if(!apSetting)
-        return false;
+    writer.writeStartElement(apSetting->getTag());
+    writer.writeAttributes(apSetting->getXMLAttributes());
+    if(!apSetting->getStringValue().isEmpty())
+        writer.writeCharacters(apSetting->getStringValue());
+
     for (auto& pSetting : apSetting->getSettings())
-    {
-        writer.writeStartElement(pSetting->getTag());
-        writer.writeAttributes(pSetting->getXMLAttributes());
-        if(!pSetting->getValue().isEmpty())
-            writer.writeCharacters(pSetting->getValue());
         save(writer,pSetting);
-        writer.writeEndElement();
-    }
+
+    writer.writeEndElement();
 
     return true;
 }
-/*
-bool XMLProcessor::load(QXmlStreamReader &reader, TreeItem *item)
+
+QXmlStreamAttributes CustomSettingsConfiguratorXML::toXMLAttributes(const QDomNamedNodeMap &aMap)
 {
-    std::vector<XMLData> stack;
-    XMLData data;
-    TreeItem* currentItem=item;
-    TreeItem* subItem;
-    size_t stackSize = 0;
+    QXmlStreamAttributes attributes;
 
-    while (!reader.atEnd())
+    for (int i = 0; i < aMap.length(); ++i)
     {
-        reader.readNext();
-        switch (reader.tokenType())
-        {
-            case QXmlStreamReader::StartElement:
-
-                data.setAttributes(reader.attributes());
-                data.setName(reader.name().toString());
-                data.setValue(QString());
-
-                subItem = new TreeItem(data.getData(),currentItem);
-                currentItem->addItem( subItem );
-                currentItem = subItem;
-
-                if (stackSize < stack.size())
-                    stack.resize(stackSize);
-
-                stack.emplace_back(data);
-                ++stackSize;
-
-                break;
-            case QXmlStreamReader::EndElement:
-                if (stackSize == stack.size())
-                    currentItem->setData(stack.back().getData());
-                --stackSize;
-                currentItem = currentItem->getParent();
-                break;
-            case QXmlStreamReader::Characters:
-                stack.back().setValue(reader.text().toString());
-                break;
-            default:
-                break;
-        }
+        auto attr = aMap.item(i).toAttr();
+        attributes.append(attr.name(), attr.value());
     }
-
-    return true;
+    return attributes;
 }
-
-bool XMLProcessor::save(QXmlStreamWriter &writer, const TreeItem *item)
-{
-    for (TreeItem* subItem : item->getItems())
-    {
-        XMLData data(subItem->getData());
-        writer.writeStartElement(data.getName());
-        writer.writeAttributes(data.getAttributes());
-        if(!data.getValue().isNull())
-            writer.writeCharacters(data.getValue());
-        save(writer,subItem);
-        writer.writeEndElement();
-    }
-
-    return true;
-}
-
-
-
-
-*/
-

@@ -11,8 +11,11 @@ int main(int argc, char *argv[])
     CustomSettingsConfiguratorXML configurator;
     UserSettings root;
 
-    std::cout << root;
-    configurator.save("test.xml",&root);
+    //std::cout << root << std::endl;
+    //configurator.save("test.xml",&root);
+
+    configurator.load("test.xml",&root);
+    std::cout << root << std::endl;
 
     return a.exec();
 }

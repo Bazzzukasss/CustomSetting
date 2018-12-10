@@ -20,8 +20,9 @@ class CustomData
 {
 public:
     virtual QXmlStreamAttributes toXMLAttributes() const                    { return QXmlStreamAttributes(); }
-    virtual void fromXMLAttributes(const QXmlStreamAttributes& aAttributes) { Q_UNUSED(aAttributes); }
+    virtual void fromXMLAttributes(const QXmlStreamAttributes&)             {}
     virtual QString getStringValue() const                                  {return "";}
+    virtual void setStringValue(const QString&)                             {}
 };
 
 
@@ -96,7 +97,8 @@ public:
     void setToDefault()                 { mValue = mDefaultValue; }
     void resetValue()                   { mValue = mResetValue; }
 
-    QString getStringValue() const override { return toString(mValue); }
+    QString getStringValue() const override             { return toString(mValue); }
+    void setStringValue(const QString& aValue) override { fromString(aValue,mValue); }
 
     QXmlStreamAttributes toXMLAttributes() const override{
         QXmlStreamAttributes attributes;

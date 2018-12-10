@@ -32,7 +32,7 @@ struct MainSettings : CustomSettingSimple
 
 struct UserSettings : CustomSettingSimple
 {
-    UserSettings() : CustomSettingSimple("",{"","",""}){
+    UserSettings() : CustomSettingSimple("root",{"rootId","rootCaption","rootDescription"}){
         addSetting(&mMainSettings);
     }
 

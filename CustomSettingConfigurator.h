@@ -5,6 +5,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QString>
+#include <QDomDocument>
 
 class ICustomSettingsConfigurator
 {
@@ -20,8 +21,9 @@ public:
     bool save(const QString& filename, CustomSetting* apSetting) override;
 
 private:
-    bool load(QXmlStreamReader& reader, CustomSetting* apSetting);
+    bool load(const QDomNode &aNode, CustomSetting* apSetting);
     bool save(QXmlStreamWriter& writer, CustomSetting *apSetting);
+    QXmlStreamAttributes toXMLAttributes(const QDomNamedNodeMap& aMap);
 };
 
 #endif // CUSTOMSETTINGSCONFIGURATOR_H

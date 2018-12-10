@@ -13,7 +13,10 @@ public:
 
     virtual QString getTag() const                          { return ""; }
     virtual QXmlStreamAttributes getXMLAttributes() const   { return QXmlStreamAttributes(); }
-    virtual QString getValue() const                        { return ""; }
+    virtual QString getStringValue() const                  { return ""; }
+    virtual void setStringValue(const QString&)             {}
+
+    virtual void setXMLAttributes(const QXmlStreamAttributes& aAttributes){}
 
     void addSetting(CustomSetting* aSetting)                { mSettings.append(aSetting); }
     void addSettings(QVector<CustomSetting*> aSettings)     { mSettings.append(aSettings); }
@@ -31,8 +34,9 @@ public:
         :mHeader(aHeader),mTag(aTag)
     {}
 
-    QString getTag() const override                         { return mTag; }
-    QXmlStreamAttributes getXMLAttributes() const override  { return mHeader.toXMLAttributes(); }
+    QString getTag() const override                                         { return mTag; }
+    QXmlStreamAttributes getXMLAttributes() const override                  { return mHeader.toXMLAttributes(); }
+    void setXMLAttributes(const QXmlStreamAttributes& aAttributes) override { mHeader.fromXMLAttributes(aAttributes); }
 
 protected:
     CustomHeader mHeader;
@@ -53,7 +57,11 @@ public:
     void setData(const CustomDataExt<T>& aData)         { mData = aData; }
     CustomDataExt<T>& getData()                         { return mData; }
 
-    QString getValue() const override                   { return mData.getStringValue(); }
+    QString getStringValue() const override             { return mData.getStringValue(); }
+    void setStringValue(const QString& aValue)          { mData.setStringValue(aValue); }
+
+    const T& getValue() const                           { return mData.getValue(); }
+    void setValue(T aValue)                             { mData.setValue(aValue); }
 
     QXmlStreamAttributes getXMLAttributes() const override{
         auto attributes = mHeader.toXMLAttributes();
@@ -63,6 +71,10 @@ public:
         return attributes;
     }
 
+    void setXMLAttributes(const QXmlStreamAttributes& aAttributes) override {
+        mHeader.fromXMLAttributes(aAttributes);
+        mData.fromXMLAttributes(aAttributes);
+    }
 private:
     CustomDataExt<T> mData;
 };
