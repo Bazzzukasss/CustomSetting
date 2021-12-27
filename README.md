@@ -1,0 +1,2 @@
+# CustomSetting
+Subdirs project

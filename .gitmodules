@@ -1,0 +1,6 @@
+[submodule "custom_setting"]
+	path = custom_setting
+	url = ../custom_setting.git
+[submodule "test_custom_setting"]
+	path = test_custom_setting
+	url = ../test_custom_setting.git
